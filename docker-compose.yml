@@ -21,6 +21,7 @@ services:
       - onlyoffice
 
   app:
+    container_name: app-server
     build: ./app
     restart: always
     volumes:
