@@ -16,9 +16,8 @@ services:
     environment:
       - MYSQL_HOST=mariadb
       - REDIS_HOST=redis
-      - MYSQL_PASSWORD=N3xtCl0ud!
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=nextcloud
+    env_file:
+      - db.env
     expose:
       - '80'
       - '9000'
@@ -49,7 +48,7 @@ services:
     tty: true
     restart: always
     ports:
-      - 80:80
+      - 8080:80
       - 443:443
     networks:
       - onlyoffice
@@ -64,10 +63,9 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=MyR00tSQ1!
-      - MYSQL_PASSWORD=N3xtCl0ud!
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=nextcloud
+      - MYSQL_ROOT_PASSWORD=961101
+    env_file:
+      - db.env
     networks:
       - onlyoffice
 
@@ -83,7 +81,7 @@ services:
 networks:
   onlyoffice:
     driver: 'bridge'
-    
+
 volumes:
   document_data:
   document_log:
