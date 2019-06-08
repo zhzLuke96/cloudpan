@@ -1,46 +1,37 @@
 version: '3'
 services:
-  db:
-    container_name: mariadb
-    image: mariadb
-    restart: always
-    volumes:
-      - mysql_data:/var/lib/mysql
-    environment:
-      - MYSQL_ROOT_PASSWORD=961101
-    env_file:
-      - db.env
-    networks:
-      - onlyoffice
-
   redis:
     container_name: redis
     image: redis:alpine
     restart: always
+    networks:
+      - onlyoffice
 
   app:
     container_name: app-server
-    build: ./app
+    image: nextcloud:fpm-alpine
+    stdin_open: true
+    tty: true
     restart: always
-    env_file:
-      - db.env
+    environment:
+      - MYSQL_HOST=mariadb
+      - REDIS_HOST=redis
+      - MYSQL_PASSWORD=N3xtCl0ud!
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
     expose:
       - '80'
       - '9000'
     networks:
       - onlyoffice
-    environment:
-      - MYSQL_HOST=mariadb
-      - REDIS_HOST=redis
     volumes:
       - app_data:/var/www/html
-    depends_on:
-      - db
-      - redis
 
   onlyoffice-document-server:
-    container_name: onlyoffice-server
+    container_name: onlyoffice-document-server
     image: onlyoffice/documentserver:latest
+    stdin_open: true
+    tty: true
     restart: always
     networks:
       - onlyoffice
@@ -54,35 +45,45 @@ services:
   nginx:
     container_name: nginx-server
     image: nginx
+    stdin_open: true
+    tty: true
     restart: always
     ports:
-      - 8080:80
+      - 80:80
       - 443:443
     networks:
       - onlyoffice
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
-      - app_data:/var/www/html:ro
-    depends_on:
-      - app
-    
-  
+      - app_data:/var/www/html
+
+  db:
+    container_name: mariadb
+    image: mariadb
+    restart: always
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=MyR00tSQ1!
+      - MYSQL_PASSWORD=N3xtCl0ud!
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+    networks:
+      - onlyoffice
+
   cron:
     image: nextcloud:fpm-alpine
     restart: always
     volumes:
-      - nextcloud:/var/www/html
+      - app_data:/var/www/html
     entrypoint: /cron.sh
-    depends_on:
-      - db
-      - redis
     networks:
       - onlyoffice
 
 networks:
   onlyoffice:
     driver: 'bridge'
-
+    
 volumes:
   document_data:
   document_log:
