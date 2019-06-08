@@ -2,6 +2,7 @@
 
 set -x
 
+docker exec app-server bash -c /var/www/install_apps.sh
 docker exec -u www-data app-server php occ --no-warnings config:system:get trusted_domains >> trusted_domain.tmp
 
 if ! grep -q "app-server" trusted_domain.tmp; then
